@@ -1,0 +1,127 @@
+<template>
+  <div id="app">
+    <div class="header">
+      <h1 class="title">Refresh & Infinite</h1>
+  </div>
+
+  <scroller style="top: 44px"
+  :on-refresh="refresh"
+  :on-infinite="infinite">
+  <div v-for="(item, index) in items" class="row" :class="{'grey-bg': index % 2 == 0}">
+  {{ item }}
+</div>
+</scroller>
+</div>
+</template>
+<style>
+  html, body {
+    margin: 0;
+}
+* {
+    box-sizing: border-box;
+}
+.row {
+    width: 100%;
+    height: 50px;
+    padding: 10px 0;
+    font-size: 16px;
+    line-height: 30px;
+    text-align: center;
+    color: #444;
+    background-color: #fff;
+}
+.grey-bg {
+    background-color: #eee;
+}
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 44px;
+    width: 100%;
+    box-shadow: 0 2px 10px 0 rgba(0,0,0,0.1);
+    background-color: #fff;
+    z-index: 1000;
+    color: #666;
+}
+.header > .title {
+    font-size: 16px;
+    line-height: 44px;
+    text-align: center;
+    margin: 0 auto;
+}
+</style>
+<script>
+  import Vue from 'vue'
+  import Resource from 'vue-resource'
+  import VueScroller from 'vue-scroller'
+
+  Vue.use(Resource)
+  Vue.use(VueScroller)
+
+  export default {
+    data() {
+      return {
+        getUrl:'http://www.dajiang365.com/Mobilezixun/testJsonp.html?lastindex=10&category=jingjicai',
+        items: [],
+        newsList:[]
+    }
+},
+
+mounted() {
+   for (var i = 1; i <= 20; i++) {
+    this.items.push(i)
+}
+this.$http.jsonp(this.getUrl+'&perpage=1',
+{
+    headers:{},
+    emulateJSON: true
+}).then((response) => {
+    console.info(response.data.data);
+    this.newsList.push( response.data.data);
+});
+
+
+
+this.top = 1
+this.bottom = 20
+},
+
+methods: {
+  refresh (done) {
+    setTimeout(() => {
+        console.log(this.top);
+      var start = this.top - 1
+      for (var i = start; i > start - 10; i--) {
+        this.items.splice(0, 0, i + ' - keep walking, be 2 with you.')
+    }
+    this.top = this.top - 10
+    done()
+}, 1500)
+},
+
+infinite (done) {
+    setTimeout(() => {
+        console.log(this.bottom);
+      var start = this.bottom + 1
+      for (var i = start; i < start + 10; i++) {
+        this.items.push(i + ' - keep walking, be 2 with you.')
+    }
+
+//     this.$http.jsonp(this.getUrl+'&perpage=1',
+// {
+//     headers:{},
+//     emulateJSON: true
+// }).then((response) => {
+//     console.log(response.data.data);
+//     this.newsList.push=response.data.data;
+// });
+
+
+    this.bottom = this.bottom + 10
+    done()
+}, 1500)
+}
+}
+}
+</script>
